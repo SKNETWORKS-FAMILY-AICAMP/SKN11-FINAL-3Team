@@ -21,4 +21,4 @@ def convert_dialogues_efficient(input_path, output_path):
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(converted, f, ensure_ascii=False, indent=2)
 
-convert_dialogues_efficient("../data/asia_culture.json", "../data/multiturn.json")
+convert_dialogues_efficient("../data/asia_culture.json", "../data/dialogue.json")
