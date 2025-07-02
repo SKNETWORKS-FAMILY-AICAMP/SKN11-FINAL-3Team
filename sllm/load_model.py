@@ -1,18 +1,19 @@
 import boto3
 import os
 import time
-from google.colab import userdata
+from dotenv import load_dotenv
 from tqdm import tqdm
-
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+load_dotenv()
 
 start = time.time()
 print("⏬ S3에서 모델 다운로드 중...")
 
 session = boto3.Session(
-    aws_access_key_id=userdata.get('AWS_ACCESS_KEY_ID'),
-    aws_secret_access_key=userdata.get('AWS_SECRET_ACCESS_KEY'),
-    region_name=userdata.get('AWS_S3_REGION')
+    aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+    aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+    region_name=os.environ.get('AWS_S3_REGION')
 )
 s3 = session.client("s3")
 
@@ -29,7 +30,7 @@ def download_s3_model_dir(bucket, prefix, local_dir):
         s3.download_file(bucket, key, local_path)
 
 download_s3_model_dir(
-    bucket=userdata.get('AWS_S3_BUCKET_NAME'),
+    bucket=os.environ.get('AWS_S3_BUCKET_NAME'),
     prefix="base-model/solar/",
     local_dir="./solar-qlora-4bits"
 )
