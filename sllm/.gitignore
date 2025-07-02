@@ -1,0 +1,5 @@
+# models
+solar-qlora-4bits/
+
+# env
+.env
