@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -53,7 +54,7 @@ func main() {
 
 	// 병렬 다운로드
 	var wg sync.WaitGroup
-	sem := make(chan struct{}, 10) // 병렬 다운로드 최대 10개
+	sem := make(chan struct{}, runtime.NumCPU()*2)
 
 	for _, key := range keys {
 		wg.Add(1)
