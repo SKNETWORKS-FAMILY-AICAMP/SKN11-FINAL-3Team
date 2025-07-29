@@ -60,6 +60,7 @@ class ChatRequest(BaseModel):
 # 모델 전역 로딩
 _tokenizer, _model, _generation_config = None, None, None
 
+
 def get_midm_model():
     global _tokenizer, _model, _generation_config
     if _model is None:
@@ -108,6 +109,17 @@ def generate_with_midm(question: str, context: str, cs_number: str) -> str:
     decoded = tokenizer.decode(output[0], skip_special_tokens=True)
     return decoded.split("assistant")[-1].strip()
 
+def check_call_intent_node(state: GraphState) -> GraphState:
+    return state
+
+def call_response_node(state: GraphState) -> GraphState:
+    session = sessions[state["session_id"]]
+    cs_number = session["cs_number"]
+    return {
+        **state,
+        "answer": f"{cs_number}번으로 연락 주시면 자세한 상담 도와드리겠습니다!",
+        "need_user_input": False,
+    }
 
 # LangGraph 노드
 def retriever_node(state: GraphState) -> GraphState:
@@ -160,21 +172,44 @@ def decide_to_generate(state: GraphState) -> str:
     return "llm_answer" if state["score"] >= 0.02 else "ask_user_again"
 
 def relevance_check(state: GraphState) -> str:
-    return END if state["relevance_check"] == "grounded" else END
+    return END if state["relevance_check"] == "grounded" else "ask_user_again"
+
+def route_after_check_call(state: GraphState) -> str:
+    CALL_KEYWORDS = [
+        "전화", "연락", "전화번호", "연락처", "문의", "상담", "연결",
+        "전화하려면", "연락하려면", "어디로 연락", "누구한테 연락", "상담 전화",
+    ]
+    if any(k in state["question"] for k in CALL_KEYWORDS):
+        return "call_response"
+    return "retriever"
 
 workflow = StateGraph(GraphState)
-workflow.set_entry_point("retriever")
+workflow.set_entry_point("check_call_intent")  
+
+# 노드 추가
+workflow.add_node("check_call_intent", check_call_intent_node)  # pass-through
+workflow.add_node("call_response", call_response_node)
+# workflow.set_entry_point("retriever")
 workflow.add_node("retriever", retriever_node)
 workflow.add_node("llm_answer", llm_answer_node)
 workflow.add_node("hallucination_check", hallucination_check_node)
 workflow.add_edge("llm_answer", "hallucination_check")
 workflow.add_node("ask_user_again", ask_user_again_node)
+workflow.add_edge("call_response", END)  
 
 workflow.add_conditional_edges("retriever", decide_to_generate, {
     "llm_answer": "llm_answer",
     "ask_user_again": "ask_user_again"
 })
-workflow.add_conditional_edges("hallucination_check", relevance_check, {END: END})
+workflow.add_conditional_edges("hallucination_check", relevance_check, {
+    END: END,
+    "ask_user_again": "ask_user_again"
+})
+workflow.add_conditional_edges("check_call_intent", route_after_check_call, {
+    "call_response": "call_response",
+    "retriever": "retriever"
+})
+                           
 graph_app = workflow.compile()
 
 
