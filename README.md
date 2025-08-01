@@ -27,21 +27,46 @@ AI 기반 상담형 챗봇 서비스 입니다
 ## 🧩 Project Overview
 
 > “AI 챗봇 상담사를 누구나 쉽게 만든다”
+"고객 상담을 더 빠르고 정확하게, 그리고 친절하게"
 
-본 프로젝트는 소상공인과 기업을 위한 **AI 상담형 챗봇**입니다.  
-고객의 반복 질문에 대해 **빠르고 정확하게 응답**하며, 음성 및 텍스트를 모두 지원합니다.  
+GenBot은 사용자의 질문을 자연스럽고 친절하게 처리하는 AI 상담형 챗봇입니다.
+기존 챗봇이 대화의 흐름을 이해하고 사용자 맞춤형 응대를 제공하도록 설계되었습니다.
+
+프로젝트의 Web 챗봇은 다음과 같은 목표를 가지고 개발되었습니다:
+
+📌 목표
+
+1. 기업 및 소상공인을 위한 자동 상담 솔루션 제공
+
+2. 텍스트/음성 기반 양방향 커뮤니케이션 지원
+
+3. 반복되는 고객 문의에 대해 즉각적이고 친절한 응답 생성
+
+4. 도메인 문서 기반 RAG(문서 기반 검색+응답) 처리
+
+🚀 특징
+
+1. 자연스러운 멀티턴 대화 흐름 지원 (LangGraph 활용)
+
+2. 사용자가 말하면 즉시 응답하는 실시간 STT/TTS 연동
+
+3. 도메인 문서를 벡터화하여 고객 맞춤형 정보 제공
+
+4. 소형 SLLM을 QLoRA로 튜닝하여 저비용 운영
 
 ---
 
 ## 🛠️ Technology Stack & Models
 
-| 구성 요소 | 사용 기술 |
-|-----------|-----------|
-| Frontend  | React, CSS, Web Speech API |
-| Backend   | FastAPI, LangGraph|
-| Vector DB | FAISS (HuggingFace Embeddings) |
-| Model     | `K-intelligence/Midm-2.0`, QLoRA 튜닝 |
-| Infra     | RunPod, S3, EFS, EC2 (with CUDA/GPU) |
+| 구성 요소           | 사용 기술 / 모델                                          | 설명 |
+|--------------------|------------------------------------------------------------|------|
+| **Frontend**       |   <img src="https://img.shields.io/badge/react-61DAFB?style=for-the-badge&logo=react&logoColor=white" style="display: inline-block; margin: 5px;"> <img src="https://img.shields.io/badge/css-663399?style=for-the-badge&logo=css&logoColor=white" style="display: inline-block; margin: 5px;">  | 사용자 질문 입력 UI, 음성(STT), API 통신 등 웹 인터페이스 구현 |
+| **Backend**        |   <img src="https://img.shields.io/badge/fastapi-009688?style=for-the-badge&logo=fastapi&logoColor=white" style="display: inline-block; margin: 5px;">         | 챗봇 응답 처리, LangGraph 파이프라인, 세션/채팅 DB 저장 |
+| **sLLM 모델**      | <img src="https://img.shields.io/badge/K_intelligence/MiDM_2.0_Base_instruct-FFD21E?style=for-the-badge&logo=huggingface&logoColor=white" style="display: inline-block; margin: 5px;">           | 친절한 말투로 튜닝된 경량화 모델 (4bit) |
+| **벡터 검색**      | `FAISS`, `intfloat/multilingual-e5-large-instruct`         | PDF 기반 RAG 검색, 유사 문서 검색 |
+| **Storage**        | `S3`, `EFS`, `local SSD`                                   | 문서 및 모델 저장, RAG용 벡터 DB, 모델 로딩 |
+| **Infrastructure** | `RunPod`, `EC2 (CUDA 환경)`, `Docker`, `ngrok`             | 모델 서빙 환경 (GPU), 배포/테스트 인프라 구성 |
+| **로깅 및 추적**   | `wandb`, `logging`, `DB(chatlog / voicelog)`               | 학습 로깅 및 실시간 세션 기록 저장 |
 
 ---
 
