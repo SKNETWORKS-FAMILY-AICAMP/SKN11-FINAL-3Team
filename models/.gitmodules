@@ -1,0 +1,9 @@
+[submodule "web"]
+	path = web
+	url = https://github.com/genbotlabs/web.git
+[submodule "models"]
+	path = models
+	url = https://github.com/genbotlabs/models.git
+[submodule ".github"]
+	path = .github
+	url = https://github.com/genbotlabs/.github.git
